@@ -162,6 +162,43 @@
     </profile>
   </profiles>
 
+  <build>
+  <plugins>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>flatten-maven-plugin</artifactId>
+      <inherited>false</inherited>
+      <executions>
+        <execution>
+          <id>flatten-effective-pom</id>
+          <phase>process-resources</phase>
+          <goals>
+            <goal>flatten</goal>
+          </goals>
+          <configuration>
+            <updatePomFile>false</updatePomFile>
+            <outputDirectory>${project.build.directory}/effective-pom</outputDirectory>
+            <flattenedPomFilename>spring-boot-dependencies.xml</flattenedPomFilename>
+            <flattenMode>bom</flattenMode>
+            <pomElements>
+              <dependencyManagement>resolve</dependencyManagement>
+              <pluginManagement>expand</pluginManagement>
+              <properties>expand</properties>
+            </pomElements>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+
+  <!-- Inherit Spring Boot version dependencies and properties -->
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-dependencies</artifactId>
+    <version>2.1.6.RELEASE</version>
+  </parent>
+
   <properties>
     <!-- Other -->
     <resteasy.version>3.7.0.Final</resteasy.version>
@@ -198,27 +235,36 @@
         <scope>import</scope>
       </dependency>
 
-      <!-- Spring Boot BOM: NOT SUPPORTED, just included to ensure dependencies are properly set -->
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring-boot.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <!--  Dekorate is included as a tech preview only and is not currently supported -->
-      <dependency>
-        <groupId>io.dekorate</groupId>
-        <artifactId>dekorate-spring-bom</artifactId>
-        <version>${dekorate.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
       <!-- ONLY the following Spring Boot Starters are supported -->
 
-      <!-- Core -->
+      <!-- org.springframework.boot starters (unchanged):
+
+        HTTP runtime:
+        org.springframework.boot:spring-boot-starter-tomcat
+        org.springframework.boot:spring-boot-starter-undertow
+
+        Web:
+        org.springframework.boot:spring-boot-starter-web
+
+        WebSocket:
+        org.springframework.boot:spring-boot-starter-websocket
+
+        Persistence:
+        org.springframework.boot:spring-boot-starter-data-jpa
+        org.springframework.boot:spring-boot-starter-jdbc
+
+        Monitoring:
+        org.springframework.boot:spring-boot-starter-actuator
+
+        Messaging:
+        org.springframework.boot:spring-boot-starter-artemis
+        org.springframework.boot:spring-boot-starter-activemq
+
+        Bean Validation:
+        org.springframework.boot:spring-boot-starter-validation
+        -->
+
+      <!-- Spring Boot Core starters (exclude logging) -->
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter</artifactId>
@@ -243,32 +289,6 @@
         <scope>test</scope>
       </dependency>
 
-      <!-- HTTP runtime -->
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-tomcat</artifactId>
-        <version>${spring-boot.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-undertow</artifactId>
-        <version>${spring-boot.version}</version>
-      </dependency>
-
-      <!-- Web -->
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-        <version>${spring-boot.version}</version>
-      </dependency>
-
-      <!-- Websocket -->
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-websocket</artifactId>
-        <version>${spring-boot.version}</version>
-      </dependency>
-
       <!-- JAX-RS -->
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
@@ -280,32 +300,6 @@
         <artifactId>resteasy-spring-boot-starter</artifactId>
         <version>${resteasy-spring-boot-starter.version}</version>
         <scope>runtime</scope>
-      </dependency>
-
-      <!-- JAX-RS with Apache CXF (UNSUPPORTED) -->
-      <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-spring-boot-starter-jaxrs</artifactId>
-        <version>${cxf-spring-boot-starter-jaxrs.version}</version>
-      </dependency>
-
-      <!-- Persistence -->
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-data-jpa</artifactId>
-        <version>${spring-boot.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-jdbc</artifactId>
-        <version>${spring-boot.version}</version>
-      </dependency>
-
-      <!--Monitoring -->
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-actuator</artifactId>
-        <version>${spring-boot.version}</version>
       </dependency>
 
       <!-- Distributed tracing with OpenTracing -->
@@ -339,18 +333,6 @@
         <version>${infinispan-starter.version}</version>
       </dependency>
 
-      <!-- Messaging -->
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-activemq</artifactId>
-        <version>${spring-boot.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-artemis</artifactId>
-        <version>${spring-boot.version}</version>
-      </dependency>
-
       <!-- AMQP -->
       <dependency>
         <groupId>org.amqphub.spring</groupId>
@@ -370,13 +352,6 @@
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-spring-boot-starter</artifactId>
         <version>${keycloak.version}</version>
-      </dependency>
-
-      <!-- Validation -->
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-validation</artifactId>
-        <version>${spring-boot.version}</version>
       </dependency>
 
       <!-- Vert.x -->
@@ -406,6 +381,24 @@
         <version>${vertx-spring-boot.version}</version>
       </dependency>
 
+      <!-- End of supported starters -->
+
+      <!-- JAX-RS with Apache CXF (UNSUPPORTED) -->
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-spring-boot-starter-jaxrs</artifactId>
+        <version>${cxf-spring-boot-starter-jaxrs.version}</version>
+      </dependency>
+
+      <!--  Dekorate is included as a tech preview only and is not currently supported -->
+      <dependency>
+        <groupId>io.dekorate</groupId>
+        <artifactId>dekorate-spring-bom</artifactId>
+        <version>${dekorate.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
       <!-- dekorate -->
       <dependency>
         <groupId>io.dekorate</groupId>
@@ -432,17 +425,8 @@
         <artifactId>openshift-junit-starter</artifactId>
         <version>${dekorate.version}</version>
       </dependency>
-      <!-- End of supported starters -->
-
 
       <!-- Needed dependencies, not directly supported, use starters instead -->
-
-      <!-- Hibernate Validator-->
-      <dependency>
-        <groupId>org.hibernate.validator</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>${hibernate-validator.version}</version>
-      </dependency>
 
       <!-- Hibernate -->
       <dependency>
@@ -468,39 +452,7 @@
         </exclusions>
       </dependency>
 
-      <!-- Tomcat -->
-      <dependency>
-        <groupId>org.apache.tomcat.embed</groupId>
-        <artifactId>tomcat-embed-core</artifactId>
-        <version>${tomcat.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.tomcat.embed</groupId>
-        <artifactId>tomcat-embed-el</artifactId>
-        <version>${tomcat.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.tomcat.embed</groupId>
-        <artifactId>tomcat-embed-jasper</artifactId>
-        <version>${tomcat.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.tomcat.embed</groupId>
-        <artifactId>tomcat-embed-websocket</artifactId>
-        <version>${tomcat.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>tomcat-jdbc</artifactId>
-        <version>${tomcat.version}</version>
-      </dependency>
-
       <!-- Undertow -->
-      <dependency>
-        <groupId>io.undertow</groupId>
-        <artifactId>undertow-core</artifactId>
-        <version>${undertow.version}</version>
-      </dependency>
       <dependency>
         <groupId>io.undertow</groupId>
         <artifactId>undertow-servlet</artifactId>
@@ -512,12 +464,6 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency>
-        <groupId>io.undertow</groupId>
-        <artifactId>undertow-websockets-jsr</artifactId>
-        <version>${undertow.version}</version>
-      </dependency>
-
     </dependencies>
   </dependencyManagement>
 </project>
